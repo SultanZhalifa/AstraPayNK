@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="AstraPay Naik Kelas — Mesin Skor & Modal Produktif untuk pelaku usaha mikro berbasis motor.">
+  <meta name="theme-color" content="#6C2BD9">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Naik Kelas">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>AstraPay Naik Kelas</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    html, body { margin: 0; padding: 0; background: #F6F4FB; }
+    #boot {
+      position: fixed; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px;
+      background: #F6F4FB; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      transition: opacity .35s ease;
+    }
+    #boot .mark {
+      width: 72px; height: 72px; border-radius: 22px;
+      background: linear-gradient(135deg, #7C3AED, #4C1D95);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 12px 28px rgba(108,43,217,.35);
+    }
+    #boot .name { color: #1B1430; font-size: 20px; font-weight: 800; letter-spacing: -.3px; }
+    #boot .sub { color: #6B6485; font-size: 13px; margin-top: -10px; }
+    #boot .ring {
+      width: 26px; height: 26px; border-radius: 50%;
+      border: 3px solid #EAE5F4; border-top-color: #6C2BD9;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="boot">
+    <div class="mark">
+      <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 30L24 16L38 30" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 38L24 28L34 38" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+      </svg>
+    </div>
+    <div class="name">AstraPay Naik Kelas</div>
+    <div class="sub">Modal yang tumbuh bareng usahamu</div>
+    <div class="ring"></div>
+  </div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var b = document.getElementById('boot');
+      if (b) { b.style.opacity = '0'; setTimeout(function(){ b.remove(); }, 400); }
+    });
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
