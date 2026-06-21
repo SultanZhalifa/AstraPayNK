@@ -16,6 +16,7 @@ class Formatters {
   static final _timeFormat = DateFormat('HH:mm', 'id_ID');
   static final _monthShortFormat = DateFormat('MMM', 'id_ID');
   static final _monthYearFormat = DateFormat('MMM yyyy', 'id_ID');
+  static final _dayShortFormat = DateFormat('EEE', 'id_ID');
 
   static String currency(num amount) => _currencyFormat.format(amount);
 
@@ -46,6 +47,7 @@ class Formatters {
   static String dateTime(DateTime date) => _dateTimeFormat.format(date);
   static String time(DateTime date) => _timeFormat.format(date);
   static String monthShort(DateTime date) => _monthShortFormat.format(date);
+  static String dayShort(DateTime date) => _dayShortFormat.format(date);
   static String monthYear(DateTime date) => _monthYearFormat.format(date);
 
   static String percentage(double value, {int digits = 0}) =>

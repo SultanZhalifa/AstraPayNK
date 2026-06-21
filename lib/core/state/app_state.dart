@@ -14,6 +14,7 @@ class QrisSplitEvent {
   final String referenceNo;
   final String payer;
   final double gross;
+  final double mdr;
   final double split;
   final double net;
   final DateTime time;
@@ -23,6 +24,7 @@ class QrisSplitEvent {
     required this.referenceNo,
     required this.payer,
     required this.gross,
+    required this.mdr,
     required this.split,
     required this.net,
     required this.time,
@@ -204,7 +206,8 @@ class AppState extends ChangeNotifier {
       split = min(wantSplit, _activeModal!.remaining);
       _activeModal!.amountPaid += split;
     }
-    final net = gross - split;
+    final mdr = res.mdrFee;
+    final net = gross - mdr - split;
     _balance += net;
 
     // Cash-flow signals improve a little with healthy QRIS activity.
@@ -265,6 +268,7 @@ class AppState extends ChangeNotifier {
       referenceNo: res.referenceNo,
       payer: chosen.name,
       gross: gross,
+      mdr: mdr,
       split: split,
       net: net,
       time: res.settledAt,

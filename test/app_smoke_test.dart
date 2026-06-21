@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
+import 'package:astrapay_naik_kelas/core/constants/app_constants.dart';
 import 'package:astrapay_naik_kelas/core/state/app_state.dart';
 import 'package:astrapay_naik_kelas/core/theme/app_theme.dart';
 import 'package:astrapay_naik_kelas/shared/data/personas.dart';
@@ -55,6 +56,29 @@ void main() {
       await app.disburseModal(amount: 1000000, tenorDays: 30);
       expect(app.hasActiveObligation, isTrue);
       expect(app.balance, before + 1000000);
+    });
+
+    test('Rini (bengkel) is Berkembang & eligible without an active modal', () {
+      final app = AppState()..switchPersona(Persona.rini);
+      expect(app.persona, Persona.rini);
+      expect(app.score.level, 'Berkembang');
+      expect(app.score.eligible, isTrue);
+      expect(app.hasActiveObligation, isFalse);
+      expect(app.availableToDraw, greaterThan(0));
+      expect(app.seed.weeklyCashflow, hasLength(7));
+    });
+
+    test('QRIS MDR is 0% for micro (<=Rp500rb) and 0.3% above', () {
+      expect(AppConstants.qrisMdr(40000), 0);
+      expect(AppConstants.qrisMdr(500000), 0);
+      expect(AppConstants.qrisMdr(1000000), closeTo(3000, 0.001));
+    });
+
+    test('Incoming micro QRIS keeps net = gross - split (MDR 0)', () async {
+      final app = AppState();
+      final ev = await app.receiveQris(payer: const QrisPayer('Tester', 50000));
+      expect(ev.mdr, 0);
+      expect(ev.net, ev.gross - ev.split);
     });
   });
 

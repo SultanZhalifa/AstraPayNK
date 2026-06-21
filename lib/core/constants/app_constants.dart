@@ -33,6 +33,17 @@ class AppConstants {
   static const double defaultSplitPercentage = 0.15; // 15%
   static const List<double> splitOptions = [0.10, 0.15, 0.20];
 
+  // QRIS MDR (Merchant Discount Rate) untuk usaha mikro (UMI), selaras
+  // docs.astrapay.com: 0% untuk transaksi ≤ Rp500rb, 0,3% di atasnya.
+  static const double qrisMdrThreshold = 500000;
+  static const double qrisMdrRateMicro = 0.0;
+  static const double qrisMdrRateStandard = 0.003;
+
+  /// MDR (Rupiah) yang dipotong dari satu pembayaran QRIS masuk.
+  static double qrisMdr(double amount) => amount <= qrisMdrThreshold
+      ? amount * qrisMdrRateMicro
+      : amount * qrisMdrRateStandard;
+
   // AstraScore signal weights (proposal §6.2)
   static const Map<String, double> scoreWeights = {
     'Ketepatan Bayar Angsuran FIF': 0.35,

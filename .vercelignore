@@ -1,0 +1,24 @@
+# Deploy statis: cukup build/web. Kecualikan artefak berat & platform native.
+# Penting: JANGAN exclude build/web (jangan pakai negasi yang rapuh).
+
+.dart_tool
+.git
+.idea
+android
+ios
+macos
+linux
+windows
+test
+astrapay_docs
+.playwright-mcp
+
+# Artefak besar
+*.png
+*.pdf
+*.docx
+*.iml
+
+# Native build Android (berisi file >100MB) — TIDAK termasuk build/web
+build/app
+build/native_assets

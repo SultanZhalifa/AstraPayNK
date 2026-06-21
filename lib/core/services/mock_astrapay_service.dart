@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../constants/app_constants.dart';
 import 'astrapay_service.dart';
 
 /// In-memory implementation of [AstraPayService] for the prototype / Demo Day.
@@ -29,12 +30,14 @@ class MockAstraPayService implements AstraPayService {
     required double splitRate,
   }) async {
     await Future.delayed(const Duration(milliseconds: 280));
+    final mdr = AppConstants.qrisMdr(amount);
     final split = (amount * splitRate);
     return QrisPaymentResult(
       referenceNo: _ref('QRIS'),
       grossAmount: amount,
+      mdrFee: mdr,
       splitToRepayment: split,
-      netToBalance: amount - split,
+      netToBalance: amount - mdr - split,
       settledAt: DateTime.now(),
     );
   }

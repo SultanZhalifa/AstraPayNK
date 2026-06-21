@@ -36,6 +36,7 @@ abstract class AstraPayService {
 class QrisPaymentResult {
   final String referenceNo;
   final double grossAmount;
+  final double mdrFee; // MDR dipotong (usaha mikro: 0% untuk ≤Rp500rb)
   final double splitToRepayment; // siphoned to Modal Jalan
   final double netToBalance; // lands in merchant balance
   final DateTime settledAt;
@@ -43,6 +44,7 @@ class QrisPaymentResult {
   const QrisPaymentResult({
     required this.referenceNo,
     required this.grossAmount,
+    required this.mdrFee,
     required this.splitToRepayment,
     required this.netToBalance,
     required this.settledAt,

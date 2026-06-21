@@ -153,6 +153,14 @@ class _TerimaQrisScreenState extends State<TerimaQrisScreen>
                       const SizedBox(height: 10),
                       ..._events.map(_eventCard),
                     ],
+                    const SizedBox(height: 18),
+                    const InfoNote(
+                      color: AppColors.textSecondary,
+                      icon: AppIcon(SvgIcons.server,
+                          size: 16, color: AppColors.textSecondary),
+                      text:
+                          'Mode simulasi (Sandbox). Di produksi: QRIS settle H+1 (cut-off 23:30 WIB), split-repayment berjalan saat settlement, pencairan lewat FINATRA (berlisensi). MDR usaha mikro 0% untuk transaksi ≤Rp500rb, 0,3% di atasnya.',
+                    ),
                   ],
                 ),
               ),
@@ -546,28 +554,39 @@ class _TerimaQrisScreenState extends State<TerimaQrisScreen>
                         color: AppColors.success)),
               ],
             ),
-            if (e.appliedToModal) ...[
-              const SizedBox(height: 10),
-              Row(
-                children: [
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: _breakdownChip(SvgIcons.percent, _mdrLabel(e),
+                      e.mdr == 0 ? AppColors.success : AppColors.textSecondary),
+                ),
+                const SizedBox(width: 8),
+                if (e.appliedToModal) ...[
                   Expanded(
                     child: _breakdownChip(
                         SvgIcons.split,
-                        'Cicilan ${Formatters.currency(e.split)}',
+                        'Cicilan ${Formatters.compactCurrency(e.split)}',
                         AppColors.accentDark),
                   ),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: _breakdownChip(SvgIcons.wallet,
-                        'Saldo ${Formatters.currency(e.net)}', AppColors.primary),
-                  ),
                 ],
-              ),
-            ],
+                Expanded(
+                  child: _breakdownChip(SvgIcons.wallet,
+                      'Saldo ${Formatters.compactCurrency(e.net)}',
+                      AppColors.primary),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  String _mdrLabel(QrisSplitEvent e) {
+    if (e.mdr == 0) return 'MDR 0%';
+    return 'MDR ${(e.mdr / e.gross * 100).toStringAsFixed(1)}%';
   }
 
   Widget _breakdownChip(String icon, String text, Color color) {

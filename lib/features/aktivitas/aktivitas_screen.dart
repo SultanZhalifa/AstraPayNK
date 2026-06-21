@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -58,6 +61,8 @@ class _AktivitasScreenState extends State<AktivitasScreen> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(18, 4, 18, 28),
                   children: [
+                    _cashflow(app),
+                    const SizedBox(height: 16),
                     _summary(masuk, keluar),
                     const SizedBox(height: 16),
                     _filters(),
@@ -75,6 +80,114 @@ class _AktivitasScreenState extends State<AktivitasScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _cashflow(AppState app) {
+    final data = app.seed.weeklyCashflow;
+    final total = data.fold<double>(0, (s, v) => s + v);
+    final avg = data.isEmpty ? 0.0 : total / data.length;
+    final maxV = data.reduce(math.max);
+    final now = DateTime.now();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: AppColors.cardShadow,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const AppIcon(SvgIcons.chart, size: 17, color: AppColors.primary),
+              const SizedBox(width: 8),
+              const Text('Arus Kas QRIS · 7 Hari',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.successSoft,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(Formatters.compactCurrency(total),
+                    style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.success)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 120,
+            child: BarChart(
+              BarChartData(
+                maxY: maxV * 1.25,
+                alignment: BarChartAlignment.spaceAround,
+                barTouchData: BarTouchData(enabled: false),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: (maxV / 2).clamp(1, double.infinity),
+                  getDrawingHorizontalLine: (_) =>
+                      const FlLine(color: AppColors.border, strokeWidth: 1),
+                ),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        final i = value.toInt();
+                        if (i < 0 || i > 6) return const SizedBox.shrink();
+                        final d = now.subtract(Duration(days: 6 - i));
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(Formatters.dayShort(d),
+                              style: const TextStyle(
+                                  fontSize: 10, color: AppColors.textTertiary)),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                barGroups: [
+                  for (var i = 0; i < data.length; i++)
+                    BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: data[i],
+                          width: 15,
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(5)),
+                          gradient: AppColors.primaryGradient,
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Rata-rata ${Formatters.compactCurrency(avg)}/hari · sinyal utama AstraScore',
+            style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary),
+          ),
+        ],
       ),
     );
   }

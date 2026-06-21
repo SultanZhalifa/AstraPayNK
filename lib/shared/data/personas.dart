@@ -2,7 +2,7 @@ import '../../core/engine/astra_score_engine.dart';
 import '../models/transaction_model.dart';
 import '../models/active_modal.dart';
 
-enum Persona { budi, sari, andi }
+enum Persona { budi, sari, andi, rini }
 
 /// A single point on the score-history chart.
 class ScorePoint {
@@ -70,6 +70,14 @@ class PersonaSeed {
       .take(2)
       .join()
       .toUpperCase();
+
+  /// Ilustrasi arus kas QRIS 7 hari terakhir (Rupiah/hari), diturunkan dari
+  /// rata-rata volume bulanan — untuk dashboard arus kas ala AstraPay Biz.
+  List<double> get weeklyCashflow {
+    final daily = monthlyQrisVolume / 30;
+    const pattern = [0.8, 1.05, 0.9, 1.15, 1.3, 1.45, 1.05];
+    return pattern.map((m) => daily * m).toList();
+  }
 }
 
 class Personas {
@@ -276,10 +284,74 @@ class Personas {
     seedTransactions: _andiTx,
   );
 
+  static final PersonaSeed rini = PersonaSeed(
+    persona: Persona.rini,
+    name: 'Rini Kusuma',
+    phone: '082145678901',
+    businessName: 'Bengkel Motor Rini Jaya',
+    businessCategory: 'Bengkel Motor',
+    accountTier: 'Plus',
+    joinDate: DateTime(2023, 9, 5),
+    isVerified: true,
+    balance: 642000,
+    points: 9800,
+    previousScore: 558,
+    monthlyQrisVolume: 6500000,
+    signals: const [
+      ScoreSignal(
+        key: 'fif',
+        label: 'Ketepatan Bayar Angsuran FIF',
+        weight: 0.35,
+        value: 0.55,
+        description: 'Angsuran motor FIF tepat waktu 10 dari 12 bulan terakhir.',
+      ),
+      ScoreSignal(
+        key: 'qris',
+        label: 'Volume & Konsistensi QRIS',
+        weight: 0.30,
+        value: 0.50,
+        description: 'Pemasukan servis & sparepart via QRIS, arus kas naik-turun.',
+      ),
+      ScoreSignal(
+        key: 'topup',
+        label: 'Keteraturan Top-up',
+        weight: 0.15,
+        value: 0.48,
+        description: 'Top-up cukup rutin untuk belanja stok sparepart.',
+      ),
+      ScoreSignal(
+        key: 'tenure',
+        label: 'Tenure & Kelengkapan Akun',
+        weight: 0.10,
+        value: 0.45,
+        description: 'Akun aktif hampir 3 tahun, tier Plus.',
+      ),
+      ScoreSignal(
+        key: 'growth',
+        label: 'Tren Pertumbuhan',
+        weight: 0.10,
+        value: 0.60,
+        description: 'Jumlah pelanggan bengkel naik dalam 3 bulan terakhir.',
+      ),
+    ],
+    history: _historyRini,
+    qrisPayers: const [
+      QrisPayer('Servis - Pak Budi', 85000),
+      QrisPayer('Ganti Oli - Mas Eko', 55000),
+      QrisPayer('Sparepart - Bu Tina', 120000),
+      QrisPayer('Tambal Ban', 25000),
+      QrisPayer('Servis Rutin - Joko', 95000),
+      QrisPayer('Kampas Rem - Andi', 70000),
+    ],
+    seedModal: _noModal,
+    seedTransactions: _riniTx,
+  );
+
   static final Map<Persona, PersonaSeed> all = {
     Persona.budi: budi,
     Persona.sari: sari,
     Persona.andi: andi,
+    Persona.rini: rini,
   };
 
   // ===== History data =====
@@ -289,6 +361,8 @@ class Personas {
       _history([610, 640, 660, 672, 688, 704]);
   static final List<ScorePoint> _historyAndi =
       _history([420, 435, 452, 463, 470, 498]);
+  static final List<ScorePoint> _historyRini =
+      _history([505, 520, 532, 545, 558, 572]);
 
   // ===== Seed modals =====
   static ActiveModal? _noModal() => null;
@@ -446,6 +520,52 @@ class Personas {
         amount: 28000,
         date: now.subtract(const Duration(days: 3)),
         isCredit: true,
+      ),
+    ];
+  }
+
+  static List<TransactionModel> _riniTx() {
+    final now = DateTime.now();
+    return [
+      TransactionModel(
+        id: 'TRX-R01',
+        type: TransactionType.qrisIncoming,
+        description: 'Servis motor - Pak Budi',
+        amount: 85000,
+        date: now.subtract(const Duration(minutes: 18)),
+        isCredit: true,
+      ),
+      TransactionModel(
+        id: 'TRX-R02',
+        type: TransactionType.qrisIncoming,
+        description: 'Sparepart - Bu Tina',
+        amount: 120000,
+        date: now.subtract(const Duration(hours: 2, minutes: 10)),
+        isCredit: true,
+      ),
+      TransactionModel(
+        id: 'TRX-R03',
+        type: TransactionType.topUp,
+        description: 'Top Up via Bank Mandiri',
+        amount: 300000,
+        date: now.subtract(const Duration(hours: 6)),
+        isCredit: true,
+      ),
+      TransactionModel(
+        id: 'TRX-R04',
+        type: TransactionType.angsuranFif,
+        description: 'Angsuran motor Vario - FIF',
+        amount: 750000,
+        date: now.subtract(const Duration(days: 4)),
+        isCredit: false,
+      ),
+      TransactionModel(
+        id: 'TRX-R05',
+        type: TransactionType.ppob,
+        description: 'Beli stok sparepart (supplier)',
+        amount: 250000,
+        date: now.subtract(const Duration(days: 5)),
+        isCredit: false,
       ),
     ];
   }
