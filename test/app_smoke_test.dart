@@ -80,6 +80,25 @@ void main() {
       expect(ev.mdr, 0);
       expect(ev.net, ev.gross - ev.split);
     });
+
+    test('Crossing 500 lifts Andi to Berkembang, unlocks modal, awards +1000',
+        () async {
+      final app = AppState()..switchPersona(Persona.andi);
+      expect(app.score.level, 'Pemula');
+      expect(app.score.eligible, isFalse);
+      final startPoints = app.points;
+
+      // Healthy QRIS nudges the score until it crosses into Berkembang.
+      for (var i = 0; i < 15 && !app.score.eligible; i++) {
+        await app.receiveQris(payer: const QrisPayer('Tester', 30000));
+      }
+
+      expect(app.score.eligible, isTrue);
+      expect(app.score.level, 'Berkembang');
+      expect(app.justLeveledUp, isTrue);
+      expect(app.points,
+          greaterThanOrEqualTo(startPoints + AppConstants.pointsPerLevelUp));
+    });
   });
 
   // ===== Widget smoke: every main tab renders without overflow =====
@@ -90,12 +109,16 @@ void main() {
         child: MaterialApp(theme: AppTheme.lightTheme, home: const HomeScreen()),
       ),
     );
-    await tester.pumpAndSettle();
+    // The nav center button pulses continuously, so the tree never "settles";
+    // pump bounded frames instead of pumpAndSettle.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('AstraScore'), findsWidgets);
 
     for (final tab in ['Modal', 'Skor', 'Profil', 'Beranda']) {
       await tester.tap(find.text(tab));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
     }
     expect(tester.takeException(), isNull);
   });
