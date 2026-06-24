@@ -229,6 +229,11 @@ class AppState extends ChangeNotifier {
           : null,
     ));
 
+    // Collect every celebration that fires from this one settlement so none
+    // gets silently overwritten when several land at once (e.g. on-time payoff
+    // AND a level-up in the same QRIS).
+    final events = <String>[];
+
     if (split > 0) {
       _insertTx(TransactionModel(
         id: _nextId('SP'),
@@ -245,8 +250,8 @@ class AppState extends ChangeNotifier {
         _nudge('fif', 0.06);
         _nudge('growth', 0.03);
         _points += AppConstants.pointsPerOnTimeRepayment;
-        lastEventMessage =
-            'Modal Jalan lunas tepat waktu! +${AppConstants.pointsPerOnTimeRepayment} AstraPoints';
+        events.add(
+            'Modal Jalan lunas tepat waktu! +${AppConstants.pointsPerOnTimeRepayment} AstraPoints');
       }
     }
 
@@ -254,13 +259,16 @@ class AppState extends ChangeNotifier {
 
     if (wasBelowEligible && _result.eligible) {
       justEligible = true;
-      lastEventMessage =
-          'Selamat! Skormu kini membuka Modal Jalan ${_formatPlafon()}';
+      events.add('Selamat! Skormu kini membuka Modal Jalan ${_formatPlafon()}');
     }
-    if (prevLevel != _result.level) {
+    if (_leveledUp(prevLevel, _result.level)) {
       justLeveledUp = true;
-      lastEventMessage = 'Naik kelas ke ${_result.level}!';
+      _points += AppConstants.pointsPerLevelUp;
+      events.add(
+          'Naik kelas ke ${_result.level}! +${AppConstants.pointsPerLevelUp} AstraPoints');
     }
+
+    if (events.isNotEmpty) lastEventMessage = events.join(' · ');
 
     notifyListeners();
 
@@ -287,13 +295,37 @@ class AppState extends ChangeNotifier {
 
   void awardScoreBoostDemo() {
     // "Bayar angsuran FIF tepat waktu" simulation from the score screen.
+    final prevLevel = _result.level;
+    final wasBelowEligible = !_result.eligible;
     _nudge('fif', 0.05);
     _nudge('topup', 0.03);
-    _points += 50;
+    _points += AppConstants.pointsPerScoreBoost;
     _evaluate();
-    lastEventMessage = 'AstraScore diperbarui dari aktivitas terbarumu';
+
+    final events = <String>['AstraScore diperbarui dari aktivitas terbarumu'];
+    if (wasBelowEligible && _result.eligible) {
+      justEligible = true;
+      events.add('Modal Jalan kini terbuka — plafon ${_formatPlafon()}');
+    }
+    if (_leveledUp(prevLevel, _result.level)) {
+      justLeveledUp = true;
+      _points += AppConstants.pointsPerLevelUp;
+      events.add(
+          'Naik kelas ke ${_result.level}! +${AppConstants.pointsPerLevelUp} AstraPoints');
+    }
+    lastEventMessage = events.join(' · ');
     notifyListeners();
   }
+
+  /// Level ordering, used to award the loyalty bonus only on an *upward* move.
+  static const List<String> _levelOrder = [
+    'Pemula',
+    'Berkembang',
+    'Mandiri',
+    'Bintang'
+  ];
+  bool _leveledUp(String from, String to) =>
+      _levelOrder.indexOf(to) > _levelOrder.indexOf(from);
 
   void consumeEvents() {
     lastEventMessage = null;
