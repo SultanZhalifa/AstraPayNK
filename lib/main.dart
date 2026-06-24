@@ -39,9 +39,11 @@ class NaikKelasApp extends StatelessWidget {
           final mq = MediaQuery.of(context);
           return MediaQuery(
             data: mq.copyWith(
+              // Allow larger text for low-vision users (financial inclusion)
+              // while keeping layouts from breaking at extreme scales.
               textScaler: mq.textScaler.clamp(
                 minScaleFactor: 0.9,
-                maxScaleFactor: 1.15,
+                maxScaleFactor: 1.3,
               ),
             ),
             child: child!,

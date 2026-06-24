@@ -217,6 +217,8 @@ class _PencairanFlowScreenState extends State<PencairanFlowScreen>
             text:
                 'Dana langsung masuk ke saldo AstraPay-mu via FINATRA (penyalur berlisensi). Cicilan otomatis dipotong dari tiap QRIS masuk — tanpa jatuh tempo mencekik.',
           ),
+          const SizedBox(height: 12),
+          _trustBadge(),
           const SizedBox(height: 22),
           GradientButton(
             text: 'Konfirmasi & Masukkan PIN',
@@ -351,6 +353,8 @@ class _PencairanFlowScreenState extends State<PencairanFlowScreen>
               text:
                   'Mulai sekarang, setiap QRIS yang masuk otomatis menyicil Modal Jalan-mu. Coba di menu "Terima QRIS".',
             ),
+            const SizedBox(height: 12),
+            _trustBadge(),
             const SizedBox(height: 22),
             GradientButton(
               text: 'Kembali ke Beranda',
@@ -359,6 +363,42 @@ class _PencairanFlowScreenState extends State<PencairanFlowScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Compact compliance/trust strip — important reassurance on a money screen.
+  Widget _trustBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceAlt,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          const AppIcon(SvgIcons.shield, size: 16, color: AppColors.success),
+          const SizedBox(width: 8),
+          Expanded(
+            child: RichText(
+              text: const TextSpan(
+                style: TextStyle(
+                    fontSize: 11.5,
+                    color: AppColors.textSecondary,
+                    height: 1.4),
+                children: [
+                  TextSpan(
+                      text: 'Disalurkan FINATRA',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
+                  TextSpan(
+                      text:
+                          ' — penyalur pembiayaan berizin & diawasi OJK. Datamu dilindungi sesuai UU PDP.'),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

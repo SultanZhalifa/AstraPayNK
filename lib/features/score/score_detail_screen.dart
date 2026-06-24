@@ -9,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/responsive.dart';
 import '../../shared/widgets/animated_counter.dart';
+import '../../shared/widgets/celebration_overlay.dart';
 import '../../shared/widgets/glass_card.dart';
 import '../../shared/widgets/score_gauge.dart';
 import '../../shared/widgets/svg_icon.dart';
@@ -398,11 +399,16 @@ class ScoreDetailScreen extends StatelessWidget {
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () {
-              context.read<AppState>().awardScoreBoostDemo();
+              final state = context.read<AppState>();
+              state.awardScoreBoostDemo();
+              final msg = state.lastEventMessage ??
+                  'AstraScore diperbarui · +${AppConstants.pointsPerScoreBoost} AstraPoints';
+              final celebrate = state.justLeveledUp || state.justEligible;
+              state.consumeEvents();
               ScaffoldMessenger.of(context)
                 ..clearSnackBars()
-                ..showSnackBar(const SnackBar(
-                    content: Text('AstraScore diperbarui · +50 AstraPoints')));
+                ..showSnackBar(SnackBar(content: Text(msg)));
+              if (celebrate) showCelebration(context, msg);
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 13),
