@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/state/app_state.dart';
@@ -8,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/responsive.dart';
 import '../../shared/widgets/animated_counter.dart';
+import '../../shared/widgets/celebration_overlay.dart';
 import '../../shared/widgets/glass_card.dart';
 import '../../shared/widgets/svg_icon.dart';
 import '../../shared/widgets/sub_app_bar.dart';
@@ -48,6 +50,7 @@ class _TerimaQrisScreenState extends State<TerimaQrisScreen>
     final app = context.read<AppState>();
     final ev = await app.receiveQris();
     if (!mounted) return;
+    HapticFeedback.lightImpact(); // a gentle tap for each incoming payment
     setState(() {
       _events.insert(0, ev);
       _sumGross += ev.gross;
@@ -55,6 +58,8 @@ class _TerimaQrisScreenState extends State<TerimaQrisScreen>
       _sumNet += ev.net;
     });
     final msg = app.lastEventMessage;
+    // Capture before consuming — these flags drive the celebration overlay.
+    final celebrate = app.justLeveledUp || app.justEligible;
     if (msg != null) {
       app.consumeEvents();
       if (mounted) {
@@ -62,6 +67,10 @@ class _TerimaQrisScreenState extends State<TerimaQrisScreen>
           ..clearSnackBars()
           ..showSnackBar(SnackBar(content: Text(msg)));
       }
+    }
+    if (celebrate && mounted) {
+      _stopAuto(); // pause the stream so the milestone gets its moment
+      await showCelebration(context, msg ?? 'Pencapaian baru terbuka!');
     }
     _busy = false;
   }
@@ -152,7 +161,8 @@ class _TerimaQrisScreenState extends State<TerimaQrisScreen>
                       ),
                       const SizedBox(height: 10),
                       ..._events.map(_eventCard),
-                    ],
+                    ] else
+                      _emptyFeed(),
                     const SizedBox(height: 18),
                     const InfoNote(
                       color: AppColors.textSecondary,
@@ -496,6 +506,41 @@ class _TerimaQrisScreenState extends State<TerimaQrisScreen>
                 ],
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _emptyFeed() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 18),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.primarySoft,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Center(
+                child: AppIcon(SvgIcons.qris, size: 26, color: AppColors.primary)),
+          ),
+          const SizedBox(height: 14),
+          const Text('Belum ada pembayaran',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          const Text(
+            'Tekan "Simulasi QRIS Masuk" untuk melihat auto-split bekerja secara langsung.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 12, color: AppColors.textSecondary, height: 1.5),
           ),
         ],
       ),

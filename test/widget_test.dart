@@ -19,7 +19,10 @@ void main() {
         child: MaterialApp(theme: AppTheme.lightTheme, home: const HomeScreen()),
       ),
     );
-    await tester.pumpAndSettle();
+    // Continuous attention animations (nav pulse) never settle, so pump a
+    // bounded number of frames instead of pumpAndSettle.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('AstraScore'), findsWidgets);
     expect(tester.takeException(), isNull);
   });

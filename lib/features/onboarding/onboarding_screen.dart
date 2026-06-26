@@ -16,6 +16,17 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _page = 0;
+  bool _animating = false; // guards against a doubled tap skipping a page
+
+  Future<void> _next() async {
+    if (_animating) return;
+    _animating = true;
+    await _pageController.nextPage(
+      duration: const Duration(milliseconds: 380),
+      curve: Curves.easeInOut,
+    );
+    _animating = false;
+  }
 
   static const _pages = [
     _Ob(
@@ -110,10 +121,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         if (isLast) {
                           _goLogin();
                         } else {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 380),
-                            curve: Curves.easeInOut,
-                          );
+                          _next();
                         }
                       },
                     ),

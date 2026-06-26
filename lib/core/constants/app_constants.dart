@@ -56,6 +56,8 @@ class AppConstants {
   // Points economy
   static const int pointsPerOnTimeRepayment = 100;
   static const int pointsPerQrisSplit = 8;
+  static const int pointsPerLevelUp = 1000;
+  static const int pointsPerScoreBoost = 50;
 
   // Animation durations
   static const Duration fast = Duration(milliseconds: 200);

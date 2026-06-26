@@ -108,6 +108,20 @@ class _AktivitasScreenState extends State<AktivitasScreen> {
               const SizedBox(width: 8),
               const Text('Arus Kas QRIS · 7 Hari',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+              const SizedBox(width: 6),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceAlt,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text('estimasi',
+                    style: TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textTertiary)),
+              ),
               const Spacer(),
               Container(
                 padding:
@@ -184,7 +198,7 @@ class _AktivitasScreenState extends State<AktivitasScreen> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Rata-rata ${Formatters.compactCurrency(avg)}/hari · sinyal utama AstraScore',
+            'Estimasi pola dari rata-rata volume QRIS · ${Formatters.compactCurrency(avg)}/hari — sinyal utama AstraScore',
             style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary),
           ),
         ],

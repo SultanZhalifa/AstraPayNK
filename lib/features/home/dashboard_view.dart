@@ -213,7 +213,12 @@ class DashboardView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          ScoreGauge(
+          Semantics(
+            container: true,
+            label:
+                'AstraScore ${s.score} dari ${AppConstants.scoreMax}, level ${s.level}',
+            child: ExcludeSemantics(
+              child: ScoreGauge(
             score: s.score,
             size: gaugeSize,
             stroke: 13,
@@ -234,6 +239,8 @@ class DashboardView extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 12)),
               ],
+            ),
+              ),
             ),
           ),
           const SizedBox(height: 6),
@@ -362,20 +369,25 @@ class DashboardView extends StatelessWidget {
 
   Widget _stat(String label, String value) {
     return Expanded(
-      child: Column(
-        children: [
-          Text(label,
-              style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7), fontSize: 11)),
-          const SizedBox(height: 3),
-          FittedBox(
-            child: Text(value,
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800)),
+      child: Semantics(
+        label: '$label: $value',
+        child: ExcludeSemantics(
+          child: Column(
+            children: [
+              Text(label,
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.7), fontSize: 11)),
+              const SizedBox(height: 3),
+              FittedBox(
+                child: Text(value,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800)),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -572,7 +584,12 @@ class DashboardView extends StatelessWidget {
     return Row(
       children: items
           .map((q) => Expanded(
-                child: GestureDetector(
+                child: Semantics(
+                  button: true,
+                  label: q.label.replaceAll('\n', ' '),
+                  onTap: q.onTap,
+                  child: ExcludeSemantics(
+                    child: GestureDetector(
                   onTap: q.onTap,
                   behavior: HitTestBehavior.opaque,
                   child: Column(
@@ -590,16 +607,24 @@ class DashboardView extends StatelessWidget {
                             child: AppIcon(q.icon, size: 23, color: q.color)),
                       ),
                       const SizedBox(height: 7),
-                      Text(
-                        q.label,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 11,
-                            height: 1.25,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary),
+                      // Reserve a constant 2-line height so single-word labels
+                      // (e.g. "Aktivitas") align with the wrapped ones.
+                      SizedBox(
+                        height: 28,
+                        child: Text(
+                          q.label,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          style: const TextStyle(
+                              fontSize: 11,
+                              height: 1.25,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary),
+                        ),
                       ),
                     ],
+                  ),
+                ),
                   ),
                 ),
               ))

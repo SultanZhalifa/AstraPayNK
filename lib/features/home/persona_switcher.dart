@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/engine/astra_score_engine.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
@@ -56,14 +57,28 @@ class _PersonaSheet extends StatelessWidget {
               style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
-            ...Personas.all.values.map((p) => _PersonaItem(
-                  seed: p,
-                  active: p.persona == app.persona,
-                  onTap: () {
-                    context.read<AppState>().switchPersona(p.persona);
-                    Navigator.pop(context);
-                  },
-                )),
+            ...Personas.all.values.map((p) {
+              final isActive = p.persona == app.persona;
+              // Live score for the active persona; engine baseline for others —
+              // so the number here always matches what the dashboard shows.
+              final score = isActive
+                  ? app.score.score
+                  : const AstraScoreEngine()
+                      .evaluate(
+                        signals: p.signals,
+                        monthlyQrisVolume: p.monthlyQrisVolume,
+                      )
+                      .score;
+              return _PersonaItem(
+                seed: p,
+                active: isActive,
+                score: score,
+                onTap: () {
+                  context.read<AppState>().switchPersona(p.persona);
+                  Navigator.pop(context);
+                },
+              );
+            }),
           ],
         ),
       ),
@@ -74,16 +89,18 @@ class _PersonaSheet extends StatelessWidget {
 class _PersonaItem extends StatelessWidget {
   final PersonaSeed seed;
   final bool active;
+  final int score;
   final VoidCallback onTap;
 
   const _PersonaItem({
     required this.seed,
     required this.active,
+    required this.score,
     required this.onTap,
   });
 
   Color get _levelColor {
-    switch (Formatters.scoreLevel(seed.history.last.score)) {
+    switch (Formatters.scoreLevel(score)) {
       case 'Bintang':
         return AppColors.scoreBintang;
       case 'Mandiri':
@@ -97,7 +114,7 @@ class _PersonaItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final level = Formatters.scoreLevel(seed.history.last.score);
+    final level = Formatters.scoreLevel(score);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
@@ -162,7 +179,7 @@ class _PersonaItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '${seed.history.last.score}',
+                      '$score',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
